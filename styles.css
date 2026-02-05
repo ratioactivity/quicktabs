@@ -113,8 +113,8 @@ body {
   justify-content: center;
   gap: 5px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.78);
-  color: var(--text-main);
+  background: linear-gradient(135deg, var(--clock-start), var(--clock-end));
+  color: #ffffff;
 }
 
 .weather-label {
@@ -132,7 +132,7 @@ body {
 }
 
 .weather-summary {
-  color: var(--text-soft);
+  color: #ffffff;
   text-transform: capitalize;
 }
 
