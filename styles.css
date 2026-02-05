@@ -95,9 +95,9 @@ body {
   border-radius: 16px;
   background: linear-gradient(135deg, var(--clock-start), var(--clock-end));
   color: #ffffff;
-  font-size: clamp(1.15rem, 1.4vw, 1.45rem);
+  font-size: clamp(1.65rem, 2.6vw, 2.35rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.1;
   min-height: 104px;
   padding: 16px 18px;
   cursor: pointer;
