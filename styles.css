@@ -17,7 +17,6 @@
   --clock-end: #b8e2ff;
   --text-main: #702347;
   --text-soft: #a23971;
-  --button-bg: rgba(255, 255, 255, 0.82);
   --heading-font: "Bigbesty", "Trebuchet MS", "Segoe UI", sans-serif;
   --body-font: "Papernotes", "Trebuchet MS", "Segoe UI", sans-serif;
 }
@@ -91,10 +90,10 @@ body {
 
 .bar-actions button {
   font-family: var(--heading-font);
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 999px;
-  background: var(--button-bg);
-  color: var(--text-main);
+  background: linear-gradient(135deg, var(--clock-start), var(--clock-end));
+  color: #ffffff;
   font-size: 1rem;
   font-weight: 700;
   padding: 12px 16px;
