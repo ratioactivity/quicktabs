@@ -187,19 +187,28 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function hasExtensionTabsAccess() {
+    return Boolean(window.chrome && chrome.tabs && chrome.tabs.query && chrome.tabs.create);
+  }
+
   function saveTabs() {
-    if (window.chrome && chrome.tabs && chrome.tabs.query) {
-      chrome.tabs.query({}, (tabs) => {
-        const urls = tabs.map((tab) => tab.url).filter(Boolean);
-        localStorage.setItem("quicktabs.savedTabs", JSON.stringify(urls));
-        weatherSummary.textContent = `Saved ${urls.length} tab(s)`;
+    if (hasExtensionTabsAccess()) {
+      chrome.tabs.query({ currentWindow: true }, (tabs) => {
+        const urls = tabs
+          .map((tab) => tab.url || tab.pendingUrl)
+          .filter((url) => typeof url === "string" && url.startsWith("http"));
+
+        if (urls.length > 1) {
+          localStorage.setItem("quicktabs.savedTabs", JSON.stringify(urls));
+          weatherSummary.textContent = `Saved ${urls.length} tab(s)`;
+        } else {
+          weatherSummary.textContent = "Need tabs permission to capture all tab URLs";
+        }
       });
       return;
     }
 
-    const fallback = [window.location.href];
-    localStorage.setItem("quicktabs.savedTabs", JSON.stringify(fallback));
-    weatherSummary.textContent = "Saved current tab only (web mode)";
+    weatherSummary.textContent = "Embed mode cannot access browser tabs; use extension page";
   }
 
   function openSavedTabs() {
@@ -209,18 +218,21 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const urls = JSON.parse(saved);
+    const urls = JSON.parse(saved).filter((url) => typeof url === "string");
 
-    if (window.chrome && chrome.tabs && chrome.tabs.create) {
+    if (hasExtensionTabsAccess()) {
       urls.forEach((url) => {
         chrome.tabs.create({ url });
       });
       return;
     }
 
-    urls.forEach((url) => {
-      window.open(url, "_blank", "noopener");
+    urls.forEach((url, index) => {
+      setTimeout(() => {
+        window.open(url, "_blank", "noopener");
+      }, index * 25);
     });
+    weatherSummary.textContent = "Opened saved tabs (browser popup rules may limit this in embeds)";
   }
 
   function openWorkTabs() {
