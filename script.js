@@ -188,7 +188,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   function hasExtensionTabsAccess() {
-    return Boolean(window.chrome && chrome.windows && chrome.windows.getAll && chrome.tabs && chrome.tabs.create);
+    return Boolean(window.chrome && chrome.tabs && chrome.tabs.query && chrome.tabs.create);
   }
 
   function normalizeTabUrl(url) {
@@ -210,9 +210,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
   function saveTabs() {
     if (hasExtensionTabsAccess()) {
-      chrome.windows.getAll({ populate: true }, (windows) => {
-        const urls = windows
-          .flatMap((win) => Array.isArray(win.tabs) ? win.tabs : [])
+      chrome.tabs.query({}, (tabs) => {
+        if (chrome.runtime && chrome.runtime.lastError) {
+          weatherSummary.textContent = "Unable to read tabs (check extension tab permissions)";
+          return;
+        }
+
+        const urls = tabs
           .map((tab) => normalizeTabUrl(tab.url || tab.pendingUrl))
           .filter(Boolean);
 
@@ -222,14 +226,17 @@ window.addEventListener("DOMContentLoaded", () => {
           localStorage.setItem("quicktabs.savedTabs", JSON.stringify(uniqueUrls));
           weatherSummary.textContent = `Saved ${uniqueUrls.length} tab(s)`;
         } else {
-          localStorage.removeItem("quicktabs.savedTabs");
           weatherSummary.textContent = "No browsable tabs found to save";
         }
       });
       return;
     }
 
-    weatherSummary.textContent = "Embed mode cannot access all browser tabs; use extension page";
+    const existing = localStorage.getItem("quicktabs.savedTabs");
+    if (!existing) {
+      localStorage.setItem("quicktabs.savedTabs", JSON.stringify([window.location.href]));
+    }
+    weatherSummary.textContent = "Limited web mode: use extension page to save all browser tabs";
   }
 
   function openSavedTabs() {
@@ -240,7 +247,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     const urls = JSON.parse(saved)
-      .map((url) => normalizeTabUrl(url))
+      .map((url) => normalizeTabUrl(url) || (url === window.location.href ? url : null))
       .filter(Boolean);
 
     if (urls.length === 0) {
