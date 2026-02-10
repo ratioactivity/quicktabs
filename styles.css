@@ -136,7 +136,12 @@ body {
 
 .weather-summary {
   color: #ffffff;
-  text-transform: capitalize;
+}
+
+.weather-meta {
+  font-size: 0.85rem;
+  opacity: 0.95;
+  letter-spacing: 0.02em;
 }
 
 .theme-1 {
