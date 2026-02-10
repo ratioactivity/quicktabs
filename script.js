@@ -188,27 +188,48 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   function hasExtensionTabsAccess() {
-    return Boolean(window.chrome && chrome.tabs && chrome.tabs.query && chrome.tabs.create);
+    return Boolean(window.chrome && chrome.windows && chrome.windows.getAll && chrome.tabs && chrome.tabs.create);
+  }
+
+  function normalizeTabUrl(url) {
+    if (typeof url !== "string") {
+      return null;
+    }
+
+    const cleaned = url.trim();
+    if (!cleaned.startsWith("http")) {
+      return null;
+    }
+
+    if (cleaned === window.location.href) {
+      return null;
+    }
+
+    return cleaned;
   }
 
   function saveTabs() {
     if (hasExtensionTabsAccess()) {
-      chrome.tabs.query({ currentWindow: true }, (tabs) => {
-        const urls = tabs
-          .map((tab) => tab.url || tab.pendingUrl)
-          .filter((url) => typeof url === "string" && url.startsWith("http"));
+      chrome.windows.getAll({ populate: true }, (windows) => {
+        const urls = windows
+          .flatMap((win) => Array.isArray(win.tabs) ? win.tabs : [])
+          .map((tab) => normalizeTabUrl(tab.url || tab.pendingUrl))
+          .filter(Boolean);
 
-        if (urls.length > 1) {
-          localStorage.setItem("quicktabs.savedTabs", JSON.stringify(urls));
-          weatherSummary.textContent = `Saved ${urls.length} tab(s)`;
+        const uniqueUrls = [...new Set(urls)];
+
+        if (uniqueUrls.length > 0) {
+          localStorage.setItem("quicktabs.savedTabs", JSON.stringify(uniqueUrls));
+          weatherSummary.textContent = `Saved ${uniqueUrls.length} tab(s)`;
         } else {
-          weatherSummary.textContent = "Need tabs permission to capture all tab URLs";
+          localStorage.removeItem("quicktabs.savedTabs");
+          weatherSummary.textContent = "No browsable tabs found to save";
         }
       });
       return;
     }
 
-    weatherSummary.textContent = "Embed mode cannot access browser tabs; use extension page";
+    weatherSummary.textContent = "Embed mode cannot access all browser tabs; use extension page";
   }
 
   function openSavedTabs() {
@@ -218,12 +239,20 @@ window.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const urls = JSON.parse(saved).filter((url) => typeof url === "string");
+    const urls = JSON.parse(saved)
+      .map((url) => normalizeTabUrl(url))
+      .filter(Boolean);
+
+    if (urls.length === 0) {
+      weatherSummary.textContent = "Saved tabs list is empty";
+      return;
+    }
 
     if (hasExtensionTabsAccess()) {
       urls.forEach((url) => {
         chrome.tabs.create({ url });
       });
+      weatherSummary.textContent = `Opened ${urls.length} saved tab(s)`;
       return;
     }
 
@@ -232,7 +261,7 @@ window.addEventListener("DOMContentLoaded", () => {
         window.open(url, "_blank", "noopener");
       }, index * 25);
     });
-    weatherSummary.textContent = "Opened saved tabs (browser popup rules may limit this in embeds)";
+    weatherSummary.textContent = "Attempted to open saved tabs (browser popup rules may limit embeds)";
   }
 
   function openWorkTabs() {
