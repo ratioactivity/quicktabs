@@ -7,8 +7,8 @@ window.addEventListener("DOMContentLoaded", () => {
   const weatherTemp = document.getElementById("weatherTemp");
   const weatherSummary = document.getElementById("weatherSummary");
   const weatherMeta = document.getElementById("weatherMeta");
-  const saveTabsBtn = document.getElementById("saveTabsBtn");
-  const openTabsBtn = document.getElementById("openTabsBtn");
+  const tasksBtn = document.getElementById("tasksBtn");
+  const enterNewDayBtn = document.getElementById("enterNewDayBtn");
   const workTabsBtn = document.getElementById("workTabsBtn");
 
   const WEATHER_CACHE_KEY = "quicktabs.weatherCache";
@@ -18,6 +18,10 @@ window.addEventListener("DOMContentLoaded", () => {
     longitude: -93.2923,
     source: "Springfield fallback"
   };
+
+
+  const tasksUrl = "https://www.notion.so/Home-ff42302797964ca0aa31c9d81ab26979?source=copy_link#2ee86c3bb6b9804880fec1cdc6199480";
+  const enterNewDayUrl = "https://www.notion.so/2ae86c3bb6b98031aba2cc85217bd3d1?pvs=106";
 
   const workUrls = [
     "https://admin.ggleap.com/dashboard-layout",
@@ -187,88 +191,22 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function hasExtensionTabsAccess() {
-    return Boolean(window.chrome && chrome.tabs && chrome.tabs.query && chrome.tabs.create);
+  function openTasks() {
+    if (window.chrome && chrome.tabs && chrome.tabs.create) {
+      chrome.tabs.create({ url: tasksUrl });
+      return;
+    }
+
+    window.open(tasksUrl, "_blank", "noopener");
   }
 
-  function normalizeTabUrl(url) {
-    if (typeof url !== "string") {
-      return null;
-    }
-
-    const cleaned = url.trim();
-    if (!cleaned.startsWith("http")) {
-      return null;
-    }
-
-    if (cleaned === window.location.href) {
-      return null;
-    }
-
-    return cleaned;
-  }
-
-  function saveTabs() {
-    if (hasExtensionTabsAccess()) {
-      chrome.tabs.query({}, (tabs) => {
-        if (chrome.runtime && chrome.runtime.lastError) {
-          weatherSummary.textContent = "Unable to read tabs (check extension tab permissions)";
-          return;
-        }
-
-        const urls = tabs
-          .map((tab) => normalizeTabUrl(tab.url || tab.pendingUrl))
-          .filter(Boolean);
-
-        const uniqueUrls = [...new Set(urls)];
-
-        if (uniqueUrls.length > 0) {
-          localStorage.setItem("quicktabs.savedTabs", JSON.stringify(uniqueUrls));
-          weatherSummary.textContent = `Saved ${uniqueUrls.length} tab(s)`;
-        } else {
-          weatherSummary.textContent = "No browsable tabs found to save";
-        }
-      });
+  function openEnterNewDay() {
+    if (window.chrome && chrome.tabs && chrome.tabs.create) {
+      chrome.tabs.create({ url: enterNewDayUrl });
       return;
     }
 
-    const existing = localStorage.getItem("quicktabs.savedTabs");
-    if (!existing) {
-      localStorage.setItem("quicktabs.savedTabs", JSON.stringify([window.location.href]));
-    }
-    weatherSummary.textContent = "Limited web mode: use extension page to save all browser tabs";
-  }
-
-  function openSavedTabs() {
-    const saved = localStorage.getItem("quicktabs.savedTabs");
-    if (!saved) {
-      weatherSummary.textContent = "No saved tabs yet";
-      return;
-    }
-
-    const urls = JSON.parse(saved)
-      .map((url) => normalizeTabUrl(url) || (url === window.location.href ? url : null))
-      .filter(Boolean);
-
-    if (urls.length === 0) {
-      weatherSummary.textContent = "Saved tabs list is empty";
-      return;
-    }
-
-    if (hasExtensionTabsAccess()) {
-      urls.forEach((url) => {
-        chrome.tabs.create({ url });
-      });
-      weatherSummary.textContent = `Opened ${urls.length} saved tab(s)`;
-      return;
-    }
-
-    urls.forEach((url, index) => {
-      setTimeout(() => {
-        window.open(url, "_blank", "noopener");
-      }, index * 25);
-    });
-    weatherSummary.textContent = "Attempted to open saved tabs (browser popup rules may limit embeds)";
+    window.open(enterNewDayUrl, "_blank", "noopener");
   }
 
   function openWorkTabs() {
@@ -290,8 +228,8 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   clockButton.addEventListener("click", rotateTheme);
-  saveTabsBtn.addEventListener("click", saveTabs);
-  openTabsBtn.addEventListener("click", openSavedTabs);
+  tasksBtn.addEventListener("click", openTasks);
+  enterNewDayBtn.addEventListener("click", openEnterNewDay);
   workTabsBtn.addEventListener("click", openWorkTabs);
 
   setClock();
