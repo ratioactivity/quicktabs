@@ -9,7 +9,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const weatherMeta = document.getElementById("weatherMeta");
   const tasksBtn = document.getElementById("tasksBtn");
   const enterNewDayBtn = document.getElementById("enterNewDayBtn");
-  const workTabsBtn = document.getElementById("workTabsBtn");
 
   const WEATHER_CACHE_KEY = "quicktabs.weatherCache";
   const WEATHER_REFRESH_MS = 10 * 60 * 1000;
@@ -19,17 +18,8 @@ window.addEventListener("DOMContentLoaded", () => {
     source: "Springfield fallback"
   };
 
-
-  const tasksUrl = "https://www.notion.so/Home-ff42302797964ca0aa31c9d81ab26979?source=copy_link#2ee86c3bb6b9804880fec1cdc6199480";
+  const tasksUrl = "https://ratioactivity.github.io/BubbleTasks/";
   const enterNewDayUrl = "https://www.notion.so/2ae86c3bb6b98031aba2cc85217bd3d1?pvs=106";
-
-  const workUrls = [
-    "https://admin.ggleap.com/dashboard-layout",
-    "https://www5.whentowork.com/cgi-bin/w2wEE.dll/home?SID=2732792964390",
-    "https://outlook.office.com/mail/0/?deeplink=mail%2F0%2F",
-    "https://www.notion.so/2f5cbae9d9e1806c848ff4640b741544?v=2f5cbae9d9e180569b96000c8a51e91e",
-    "https://www.missouristate.edu"
-  ];
 
   const weatherCodes = {
     0: "clear sky",
@@ -209,19 +199,6 @@ window.addEventListener("DOMContentLoaded", () => {
     window.open(enterNewDayUrl, "_blank", "noopener");
   }
 
-  function openWorkTabs() {
-    if (window.chrome && chrome.tabs && chrome.tabs.create) {
-      workUrls.forEach((url) => {
-        chrome.tabs.create({ url });
-      });
-      return;
-    }
-
-    workUrls.forEach((url) => {
-      window.open(url, "_blank", "noopener");
-    });
-  }
-
   const cached = getWeatherCache();
   if (cached) {
     renderWeather(cached);
@@ -230,7 +207,6 @@ window.addEventListener("DOMContentLoaded", () => {
   clockButton.addEventListener("click", rotateTheme);
   tasksBtn.addEventListener("click", openTasks);
   enterNewDayBtn.addEventListener("click", openEnterNewDay);
-  workTabsBtn.addEventListener("click", openWorkTabs);
 
   setClock();
   loadWeather();
