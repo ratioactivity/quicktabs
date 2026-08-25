@@ -54,6 +54,12 @@ body {
   transition: background 220ms ease;
 }
 
+.clock-panel,
+.bar-actions button,
+.weather-panel {
+  text-shadow: 0 2px 3px var(--text-shadow);
+}
+
 .clock-panel {
   border: none;
   border-radius: 16px;
