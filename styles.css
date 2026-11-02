@@ -26,26 +26,33 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
-  min-height: 100vh;
   background: #fff9fb;
   font-family: var(--body-font);
   color: var(--text-main);
 }
 
 .embed-shell {
-  max-width: 1500px;
+  width: 100%;
+  height: 100%;
   margin: 0 auto;
-  padding: 20px 16px;
+  padding: 12px;
 }
 
 .quicktabs-bar {
   display: grid;
-  grid-template-columns: 290px 1fr 260px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.5fr) minmax(0, 1fr);
   gap: 14px;
   align-items: stretch;
-  min-height: 132px;
+  height: 100%;
+  min-height: 0;
   padding: 14px;
   border-radius: 20px;
   background: linear-gradient(90deg, var(--bg-start), var(--bg-end));
@@ -91,7 +98,7 @@ body {
 
 .bar-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   gap: 12px;
   align-content: stretch;
   align-items: stretch;
@@ -107,7 +114,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.035em;
   line-height: 1.1;
-  min-height: 104px;
+  min-height: 0;
   padding: 16px 18px;
   cursor: pointer;
   box-shadow: inset 0 0 22px rgba(255, 255, 255, 0.4);
@@ -186,12 +193,74 @@ body {
   --text-shadow: rgba(85, 98, 46, 0.32);
 }
 
-@media (max-width: 960px) {
-  .quicktabs-bar {
-    grid-template-columns: 1fr;
-  }
+.quicktabs-bar > *,
+.bar-actions > * {
+  min-width: 0;
+  min-height: 0;
+}
 
-  .bar-actions {
-    grid-template-columns: 1fr;
+.thought-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--clock-start), var(--clock-end));
+  box-shadow: inset 0 0 22px rgba(255, 255, 255, 0.4);
+  text-shadow: none;
+}
+
+.thought-panel label {
+  font: 1.1rem var(--heading-font);
+}
+
+.thought-panel textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 6px;
+  padding: 4px;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  color: var(--text-main);
+  font: 1.15rem/1.35 var(--body-font);
+}
+
+.thought-panel textarea::placeholder {
+  color: var(--text-main);
+  opacity: 0.7;
+}
+
+button:focus-visible,
+.thought-panel textarea:focus-visible {
+  outline: 2px solid var(--text-main);
+  outline-offset: 2px;
+}
+
+.thought-status {
+  font-size: 0.8rem;
+  line-height: 1.1;
+}
+
+@media (max-width: 700px) {
+  .embed-shell { padding: 6px; }
+  .quicktabs-bar {
+    gap: 6px;
+    padding: 8px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
   }
+  .bar-actions {
+    gap: 6px;
+  }
+  .clock-panel, .bar-actions button, .weather-panel, .thought-panel { padding: 8px; }
+  .clock-time { font-size: clamp(1rem, 4vw, 2rem); }
+  .clock-date, .weather-summary, .weather-meta { font-size: 0.75rem; }
+  .bar-actions button { font-size: clamp(1rem, 3vw, 1.75rem); }
+  .weather-label { font-size: 0.7rem; letter-spacing: 0; }
+  .weather-temp { font-size: 1.5rem; }
+  .thought-panel label { font-size: 0.9rem; }
+  .thought-panel textarea { font-size: 0.9rem; }
+  .thought-status { font-size: 0.65rem; }
 }

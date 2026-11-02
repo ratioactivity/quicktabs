@@ -8,7 +8,24 @@ window.addEventListener("DOMContentLoaded", () => {
   const weatherSummary = document.getElementById("weatherSummary");
   const weatherMeta = document.getElementById("weatherMeta");
   const tasksBtn = document.getElementById("tasksBtn");
-  const enterNewDayBtn = document.getElementById("enterNewDayBtn");
+  const thoughtText = document.getElementById("thoughtText");
+  const thoughtStatus = document.getElementById("thoughtStatus");
+  const THOUGHT_KEY = "quicktabs.thought";
+
+  try {
+    thoughtText.value = localStorage.getItem(THOUGHT_KEY) || "";
+  } catch (error) {
+    thoughtStatus.textContent = "Storage unavailable — text won’t survive a reload";
+  }
+
+  thoughtText.addEventListener("input", () => {
+    try {
+      localStorage.setItem(THOUGHT_KEY, thoughtText.value);
+      thoughtStatus.textContent = "Saved on this browser";
+    } catch (error) {
+      thoughtStatus.textContent = "Couldn’t save — keep a copy before leaving";
+    }
+  });
 
   const WEATHER_CACHE_KEY = "quicktabs.weatherCache";
   const WEATHER_REFRESH_MS = 10 * 60 * 1000;
@@ -19,7 +36,6 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   const tasksUrl = "https://ratioactivity.github.io/BubbleTasks/";
-  const enterNewDayUrl = "https://www.notion.so/2ae86c3bb6b98031aba2cc85217bd3d1?pvs=106";
 
   const weatherCodes = {
     0: "clear sky",
@@ -70,12 +86,9 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   function getWeatherCache() {
-    const cached = localStorage.getItem(WEATHER_CACHE_KEY);
-    if (!cached) {
-      return null;
-    }
-
     try {
+      const cached = localStorage.getItem(WEATHER_CACHE_KEY);
+      if (!cached) return null;
       const payload = JSON.parse(cached);
       if (!payload || typeof payload.temperature !== "number" || typeof payload.weatherCode !== "number") {
         return null;
@@ -190,15 +203,6 @@ window.addEventListener("DOMContentLoaded", () => {
     window.open(tasksUrl, "_blank", "noopener");
   }
 
-  function openEnterNewDay() {
-    if (window.chrome && chrome.tabs && chrome.tabs.create) {
-      chrome.tabs.create({ url: enterNewDayUrl });
-      return;
-    }
-
-    window.open(enterNewDayUrl, "_blank", "noopener");
-  }
-
   const cached = getWeatherCache();
   if (cached) {
     renderWeather(cached);
@@ -206,7 +210,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   clockButton.addEventListener("click", rotateTheme);
   tasksBtn.addEventListener("click", openTasks);
-  enterNewDayBtn.addEventListener("click", openEnterNewDay);
 
   setClock();
   loadWeather();

@@ -16,7 +16,11 @@
 
       <div class="bar-actions" role="group" aria-label="Tab actions">
         <button id="tasksBtn" type="button">Tasks</button>
-        <button id="enterNewDayBtn" type="button">Enter New Day</button>
+        <div class="thought-panel">
+          <label for="thoughtText">A thought…</label>
+          <textarea id="thoughtText" aria-describedby="thoughtStatus" placeholder="Click here and type whatever’s on your mind." spellcheck="true"></textarea>
+          <span id="thoughtStatus" class="thought-status" role="status">Saved on this browser</span>
+        </div>
       </div>
 
       <div id="weatherPanel" class="weather-panel" aria-live="polite">
